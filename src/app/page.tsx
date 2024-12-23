@@ -20,7 +20,7 @@ export default function Home() {
 
 	return (
 		<>
-			<div className="flex justify-center items-center flex-col">
+			{address ? <div className="flex justify-center items-center flex-col">
 				<Card title="Chercher un vote" style={{ width: 300, marginBottom: 20 }}>
 					<input type="text" id="pubkey" placeholder="Pubkey du contrat" className="pl-2 mb-5" onChange={(e) => {setPubkey(e.target.value)}}/>
 					<Button disabled={!pubkey} onClick={sendFirst}>Chercher</Button>
@@ -31,7 +31,7 @@ export default function Home() {
 					<input type="text" id="description" placeholder="Description du vote" className="pl-2 mb-5" onChange={(e) => {setDescription(e.target.value)}}/>
 					<Button disabled={!name || !description} onClick={sendSecond}>Creer un vote</Button>
 				</Card>
-			</div>
+			</div> : ""}
 		</>
 	);
 }
