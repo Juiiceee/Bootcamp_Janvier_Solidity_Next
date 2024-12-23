@@ -2,16 +2,15 @@
 import { useAccount, useDisconnect } from "wagmi";
 import { useState } from "react";
 import { Button, Card } from "antd";
+import { useRouter } from "next/navigation";
 
 export default function Home() {
+	const router = useRouter();
 	const { address } = useAccount();
 	const [pubkey, setPubkey] = useState("");
 	const [name, setName] = useState("");
 	const [description, setDescription] = useState("");
 
-	const sendFirst =() => {
-		console.log("Pubkey: ", pubkey);
-	}
 
 	const sendSecond =() => {
 		console.log("Name: ", name);
@@ -23,7 +22,7 @@ export default function Home() {
 			{address ? <div className="flex justify-center items-center flex-col">
 				<Card title="Chercher un vote" style={{ width: 300, marginBottom: 20 }}>
 					<input type="text" id="pubkey" placeholder="Pubkey du contrat" className="pl-2 mb-5" onChange={(e) => {setPubkey(e.target.value)}}/>
-					<Button disabled={!pubkey} onClick={sendFirst}>Chercher</Button>
+					<Button disabled={!pubkey} onClick={() => router.push(`/vote/${pubkey}`)}>Chercher</Button>
 				</Card>
 
 				<Card title="Creer un vote" style={{ width: 300}}>
