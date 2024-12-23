@@ -1,5 +1,5 @@
 "use client";
-import { useAccount, useDisconnect } from "wagmi";
+import { useAccount, useBalance, useDisconnect } from "wagmi";
 import { useState } from "react";
 import { Button, Card } from "antd";
 import { useRouter } from "next/navigation";
@@ -24,7 +24,6 @@ export default function Home() {
 					<input type="text" id="pubkey" placeholder="Pubkey du contrat" className="pl-2 mb-5" onChange={(e) => {setPubkey(e.target.value)}}/>
 					<Button disabled={!pubkey} onClick={() => router.push(`/vote/${pubkey}`)}>Chercher</Button>
 				</Card>
-
 				<Card title="Creer un vote" style={{ width: 300}}>
 					<input type="text" id="name" placeholder="Nom du vote" className="pl-2 mb-5 " onChange={(e) => {setName(e.target.value)}}/>
 					<input type="text" id="description" placeholder="Description du vote" className="pl-2 mb-5" onChange={(e) => {setDescription(e.target.value)}}/>
