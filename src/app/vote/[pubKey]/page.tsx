@@ -1,8 +1,23 @@
-import { useBalance, useReadContract } from "wagmi";
+import { useBalance, useReadContract, useWriteContract, useAccount } from "wagmi";
+import { useState } from "react";
+import { addressContract, abiContract } from "@/app/constante";
 export default function vote({ params }: { params: { pubKey: string } }) {
+
+	const {writeContract} = useWriteContract();
+	const { address} = useAccount();
+
+	const putNumber = async () => {
+		writeContract({
+			address: addressContract,
+			abi: abiContract,
+			functionName: "increment",
+			args: [],
+			account: address,
+		})
+	}
 	const { data: recupVote } = useReadContract({
 		functionName: 'balanceOf',
-		args: ['0x03A71968491d55603FFe1b11A9e23eF013f75bCF'],
+		args: [addressContract],
 	  })
 	return (
 		<div>
