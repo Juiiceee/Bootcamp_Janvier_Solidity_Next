@@ -1,19 +1,15 @@
 "use client";
 import { useAccount, type BaseError, useReadContract, useWriteContract, useWaitForTransactionReceipt } from "wagmi";
-import { addressContract, abiContract, abiFactory } from "@/app/constante";
-import { useState, useEffect, use } from "react";
+import { addressContract, abiContract } from "@/app/constante";
+import { useState, useEffect } from "react";
 import { Address } from "viem";
 import { Button, Card } from "antd";
-import { useRouter } from "next/navigation";
 import toast from 'react-hot-toast';
 
 export default function Home() {
-	const router = useRouter();
 	const { address } = useAccount();
-	const [pubkey, setPubkey] = useState("");
 	const [storage, setStorage] = useState(0);
-	const { data: hash, writeContract, error, status } = useWriteContract();
-	const [value, setValue] = useState(0);
+	const { data: hash, writeContract, error } = useWriteContract();
 
 	const setNumber = async () => {
 		writeContract({
@@ -81,7 +77,6 @@ export default function Home() {
 						<Button onClick={() => refetch()}>Refetch value</Button>
 					</div>
 				</Card>
-
 				<Card title="Interagir avec le smart contract" style={{ width: 300 }}>
 					<div className="flex flex-col items-center">
 						<input type="number" id="storage" placeholder="Set le nombre" onChange={(e) => { setStorage(Number(e.target.value)) }} />
