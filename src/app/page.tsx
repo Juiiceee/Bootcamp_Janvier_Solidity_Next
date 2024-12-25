@@ -1,7 +1,7 @@
 "use client";
-import { useAccount, type BaseError, useReadContract, useWriteContract, useDisconnect } from "wagmi";
-import { addressContract, abiContract } from "@/app/constante";
-import { useState } from "react";
+import { useAccount, type BaseError, useReadContract, useWriteContract, useWaitForTransactionReceipt } from "wagmi";
+import { addressContract, abiContract, abiFactory } from "@/app/constante";
+import { useState, useEffect, use } from "react";
 import { Address } from "viem";
 import { Button, Card } from "antd";
 import { useRouter } from "next/navigation";
@@ -11,11 +11,21 @@ export default function Home() {
 	const router = useRouter();
 	const { address } = useAccount();
 	const [pubkey, setPubkey] = useState("");
-	const [name, setName] = useState("");
-	const [description, setDescription] = useState("");
-	const { writeContract, error } = useWriteContract();
+	const [storage, setStorage] = useState(0);
+	const { data: hash, writeContract, error, status } = useWriteContract();
+	const [value, setValue] = useState(0);
 
-	const putNumber = async () => {
+	const setNumber = async () => {
+		writeContract({
+			address: addressContract as Address,
+			abi: abiContract,
+			functionName: "setNumber",
+			args: [storage],
+			account: address,
+		});
+	}
+
+	const increment = async () => {
 		writeContract({
 			address: addressContract as Address,
 			abi: abiContract,
@@ -25,21 +35,60 @@ export default function Home() {
 		});
 	}
 
-	if (error) {
-		toast.error((error as BaseError).shortMessage);
+	const decrement = async () => {
+		writeContract({
+			address: addressContract as Address,
+			abi: abiContract,
+			functionName: "decrement",
+			args: [],
+			account: address,
+		});
 	}
+
+	const { data: number , refetch } = useReadContract({
+		address: addressContract as Address,
+		abi: abiContract,
+		functionName: "number",
+		args: [],
+	});
+
+	const { isSuccess: isConfirmed } =
+		useWaitForTransactionReceipt({
+			hash,
+		})
+
+	useEffect(() => {
+		if (isConfirmed) {
+			toast.success('Transaction confirmée');
+		}
+	},
+		[isConfirmed]);
+
+	useEffect(() => {
+		if (error) {
+			toast.error('Erreur lors de la transaction: ' + (error as BaseError).shortMessage);
+		}
+	}, [error]);
+
+
 
 	return (
 		<>
 			{address ? <div className="flex justify-center items-center flex-col">
-				<Card title="Chercher un vote" style={{ width: 300, marginBottom: 20 }}>
-					<input type="text" id="pubkey" placeholder="Pubkey du contrat" className="pl-2 mb-5" onChange={(e) => { setPubkey(e.target.value) }} />
-					<Button disabled={!pubkey} onClick={() => router.push(`/vote/${pubkey}`)}>Chercher</Button>
+				<Card title="Lire le smart contract" style={{ width: 300, marginBottom: 20 }}>
+					<div className="flex flex-col items-center">
+						{number ? <p>Le nombre stocké est: {number.toString()}</p> : ""}
+						<Button onClick={() => refetch()}>Refetch value</Button>
+					</div>
 				</Card>
-				<Card title="Creer un vote" style={{ width: 300 }}>
-					<input type="text" id="name" placeholder="Nom du vote" className="pl-2 mb-5 " onChange={(e) => { setName(e.target.value) }} />
-					<input type="text" id="description" placeholder="Description du vote" className="pl-2 mb-5" onChange={(e) => { setDescription(e.target.value) }} />
-					<Button disabled={!name || !description} onClick={putNumber}>Creer un vote</Button>
+
+				<Card title="Interagir avec le smart contract" style={{ width: 300 }}>
+					<div className="flex flex-col items-center">
+						<input type="number" id="storage" placeholder="Set le nombre" onChange={(e) => { setStorage(Number(e.target.value)) }} />
+						<Button className="my-2" disabled={!storage} onClick={setNumber}>Set</Button>
+						<Button className="my-2" onClick={increment}>Incrementer</Button>
+						<Button className="my-2" onClick={decrement}>Decrementer</Button>
+					</div>
 				</Card>
 			</div> : ""}
 		</>
